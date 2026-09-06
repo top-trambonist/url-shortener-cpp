@@ -7,7 +7,11 @@ int main()
 	CROW_ROUTE(app, "/")
 	([]()
 	{
-			return "Hello from C++!";
+			crow::response response;
+
+			response.set_static_file_info("index.html");
+
+			return response;
 	});
 
 	app.port(8080).run();
