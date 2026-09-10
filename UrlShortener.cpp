@@ -1,9 +1,14 @@
 ﻿#include <crow.h>
+#include "Shortener.h"
 #include <iostream>
+#include <windows.h>
 
 int main()
 {
+	SetConsoleOutputCP(CP_UTF8);
+
 	crow::SimpleApp app;
+	Shortener shortener;
 
 	CROW_ROUTE(app, "/")
 	([]()
@@ -17,7 +22,7 @@ int main()
 
 	CROW_ROUTE(app, "/shorten")
 		.methods(crow::HTTPMethod::POST)
-		([](const crow::request& req)
+		([&shortener](const crow::request& req)
 			{
 				const auto params = req.get_body_params();
 				char* url = params.get("url");
@@ -25,19 +30,59 @@ int main()
 				if (url == nullptr || url[0] == '\0') {
 					return crow::response(
 						400,
-						"<p>URL is missing.</p>"
+						"<p>URL потерян.</p>"
 					);
 				}
+				
+				std::string code = shortener.shorten(url);
 
 				std::cout
-					<< "Received URL: "
+					<< "Оригинальная URL: "
 					<< url
+					<< '\n'
+					<< "Сгенерированная URL: "
+					<< code
 					<< '\n';
 
-				return crow::response(
+				std::string shortUrl =
+					"http://localhost:8080/" + code;
+
+				std::string responseText =
+					"<p>Короткая ссылка: <a href=\"" +
+					shortUrl +
+					"\">" +
+					shortUrl +
+					"</a></p>";
+
+				crow::response response(
 					200,
-					"<p>URL received by C++ server!</p>"
+					responseText
 				);
+
+				response.set_header(
+					"Content-Type",
+					"text/html; charset=UTF-8"
+				);
+
+				return response;
+			});
+
+	CROW_ROUTE(app, "/<string>")
+		([&shortener](const std::string& code) {
+			std::string originalUrl = shortener.getOriginalUrl(code);
+
+			if (originalUrl.empty()) {
+				return crow::response(
+					404,
+					"<p>Короткая ссылка не найдена.</p>"
+				);
+			}
+
+			crow::response response;
+			response.code = 302;
+			response.set_header("Location", originalUrl);
+
+			return response;
 			});
 
 	app.port(8080).run();
