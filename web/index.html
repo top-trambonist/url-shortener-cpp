@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>URL Shortener</title>
+
+    <link
+	rel="icon"
+	type="image/png"
+	href="/static/images/favicon.png"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+    >
+
+
+    <link
+        rel="stylesheet"
+        href="/static/css/style.css"
+    >
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
+        integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
+        crossorigin="anonymous">
+    </script>
+
+
+</head>
+
+
+<body>
+
+
+<header class="container logo">
+
+    <h1>
+        ✂️ URL Shortener ✂️
+    </h1>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <h2>
+        Сокращение ссылок
+    </h2>
+
+
+    <p>
+        Вставьте длинную ссылку, чтобы получить её короткую версию.
+    </p>
+
+
+
+    <form
+        hx-post="/shorten"
+        hx-target="#result"
+        hx-swap="innerHTML"
+    >
+
+
+        <input
+            class="url-input"
+            type="url"
+            name="url"
+            placeholder="https://example.com/very-long-url"
+            required
+        >
+
+
+
+        <button
+            class="shorten-button"
+            type="submit"
+        >
+            Сократить
+        </button>
+
+
+    </form>
+
+
+
+    <div
+        id="result"
+        class="result"
+    >
+    </div>
+
+
+
+
+    <p class="description">
+
+        Сервис создаёт короткий адрес для длинной ссылки.
+        При переходе по новому адресу пользователь попадает
+        на оригинальную страницу.
+
+    </p>
+
+
+</main>
+
+
+
+<footer class="container">
+
+    <a href="https://github.com/top-trambonist/url-shortener-cpp">
+        GitHub
+    </a>
+
+</footer>
+
+
+
+
+<script>
+
+
+function copyLink()
+{
+    const input = document.getElementById("short-url");
+
+    navigator.clipboard.writeText(input.value);
+}
+
+
+</script>
+
+
+</body>
+
+</html>

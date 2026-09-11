@@ -15,10 +15,34 @@ int main()
 	{
 			crow::response response;
 
-			response.set_static_file_info("index.html");
+			response.set_static_file_info("web/index.html");
 
 			return response;
 	});
+
+	CROW_ROUTE(app, "/static/css/<string>")
+		([](std::string filename)
+			{
+				crow::response response;
+
+				response.set_static_file_info(
+					"web/css/" + filename
+				);
+
+				return response;
+			});
+
+	CROW_ROUTE(app, "/static/images/<string>")
+		([](std::string filename)
+			{
+				crow::response response;
+
+				response.set_static_file_info(
+					"web/images/" + filename
+				);
+
+				return response;
+			});
 
 	CROW_ROUTE(app, "/shorten")
 		.methods(crow::HTTPMethod::POST)
@@ -48,11 +72,13 @@ int main()
 					"http://localhost:8080/" + code;
 
 				std::string responseText =
-					"<p>Короткая ссылка: <a href=\"" +
+					"<p>Ваша короткая ссылка:</p>"
+					"<input id=\"short-url\" value=\"" +
 					shortUrl +
-					"\">" +
-					shortUrl +
-					"</a></p>";
+					"\" readonly>"
+					"<button class=\"copy-button\" onclick=\"copyLink()\">"
+					"Копировать"
+					"</button>";
 
 				crow::response response(
 					200,
