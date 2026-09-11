@@ -26,17 +26,25 @@ std::string Shortener::generateCode() {
 }
 
 std::string Shortener::shorten(const std::string& originalUrl) {
-    std::string code = generateCode();
+    auto existingUrl = urlToCode.find(originalUrl);
 
-    urls[code] = originalUrl;
+    if (existingUrl != urlToCode.end()) return existingUrl->second;
+
+    std::string code;
+    do {
+        code = generateCode();
+    } while (codeToUrl.find(code) != codeToUrl.end());
+
+    codeToUrl[code] = originalUrl;
+    urlToCode[originalUrl] = code;
 
     return code;
 }
 
 std::string Shortener::getOriginalUrl(const std::string& code) {
-    auto it = urls.find(code);
+    auto it = codeToUrl.find(code);
 
-    if (it == urls.end()) return {};
+    if (it == codeToUrl.end()) return "";
 
     return it->second;
 }

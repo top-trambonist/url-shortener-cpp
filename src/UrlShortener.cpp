@@ -3,6 +3,11 @@
 #include <iostream>
 #include <windows.h>
 
+bool isValidUrl(const std::string& url) {
+	return url.starts_with("http://") ||
+		url.starts_with("https://");
+}
+
 int main()
 {
 	SetConsoleOutputCP(CP_UTF8);
@@ -57,12 +62,20 @@ int main()
 						"<p>URL потерян.</p>"
 					);
 				}
+
+				std::string originalUrl = url;
+				if (!isValidUrl(originalUrl)) {
+					return crow::response(
+						400,
+						"<p>Некорректный URL.</p>"
+					);
+				}
 				
-				std::string code = shortener.shorten(url);
+				std::string code = shortener.shorten(originalUrl);
 
 				std::cout
 					<< "Оригинальная URL: "
-					<< url
+					<< originalUrl
 					<< '\n'
 					<< "Сгенерированная URL: "
 					<< code

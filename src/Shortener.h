@@ -9,5 +9,6 @@ public:
 private:
 	std::string generateCode();
 	static constexpr int CODE_LENGTH = 6;
-	std::unordered_map<std::string, std::string> urls;
+	std::unordered_map<std::string, std::string> codeToUrl;
+	std::unordered_map<std::string, std::string> urlToCode;
 };
