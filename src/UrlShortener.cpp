@@ -1,7 +1,12 @@
 ﻿#include <crow.h>
 #include "Shortener.h"
 #include <iostream>
+#include <sqlite3.h>
+#include <filesystem>
+
+#ifdef _WIN32
 #include <windows.h>
+#endif
 
 bool isValidUrl(const std::string& url) {
 	return url.starts_with("http://") ||
@@ -10,10 +15,16 @@ bool isValidUrl(const std::string& url) {
 
 int main()
 {
+#ifdef _WIN32
 	SetConsoleOutputCP(CP_UTF8);
+#endif
+
+	std::filesystem::create_directories("data");
+	UrlRepository repository("data/urls.db");
+
+	Shortener shortener(repository);
 
 	crow::SimpleApp app;
-	Shortener shortener;
 
 	CROW_ROUTE(app, "/")
 	([]()
@@ -124,5 +135,5 @@ int main()
 			return response;
 			});
 
-	app.port(8080).run();
+	app.bindaddr("0.0.0.0").port(8080).run();
 }

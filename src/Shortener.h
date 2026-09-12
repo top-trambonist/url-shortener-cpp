@@ -1,14 +1,21 @@
 #pragma once
+#include "UrlRepository.h"
+
+#include <mutex>
 #include <string>
-#include <unordered_map>
+
 
 class Shortener {
 public:
+	explicit Shortener(UrlRepository& repository);
+
 	std::string shorten(const std::string& originalUrl);
 	std::string getOriginalUrl(const std::string& code);
 private:
 	std::string generateCode();
 	static constexpr int CODE_LENGTH = 6;
-	std::unordered_map<std::string, std::string> codeToUrl;
-	std::unordered_map<std::string, std::string> urlToCode;
+	
+	UrlRepository& repository;
+	std::mutex mutex;
+
 };

@@ -25,26 +25,37 @@ std::string Shortener::generateCode() {
     return code;
 }
 
+Shortener::Shortener(UrlRepository& repository)
+    : repository(repository) {
+}
+
+
+
 std::string Shortener::shorten(const std::string& originalUrl) {
-    auto existingUrl = urlToCode.find(originalUrl);
+    std::lock_guard<std::mutex> lock(mutex);
 
-    if (existingUrl != urlToCode.end()) return existingUrl->second;
+    auto existingCode = repository.findCodeByUrl(originalUrl);
 
-    std::string code;
-    do {
-        code = generateCode();
-    } while (codeToUrl.find(code) != codeToUrl.end());
+    if (existingCode) return *existingCode;
 
-    codeToUrl[code] = originalUrl;
-    urlToCode[originalUrl] = code;
+    while (true) {
+        std::string code = generateCode();
+        bool saved = repository.save(
+            code,
+            originalUrl
+        );
 
-    return code;
+        if (saved) return code;
+
+        existingCode = repository.findCodeByUrl(originalUrl);
+        if (existingCode) return *existingCode;
+    }
 }
 
 std::string Shortener::getOriginalUrl(const std::string& code) {
-    auto it = codeToUrl.find(code);
+    std::lock_guard<std::mutex> lock(mutex);
 
-    if (it == codeToUrl.end()) return "";
-
-    return it->second;
+    auto url = repository.findUrlByCode(code);
+    if (!url) return "";
+    return *url;
 }
